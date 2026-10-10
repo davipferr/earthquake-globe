@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Live earthquakes from the USGS on a 3D globe, at their real depth, with a timeline replay." />
+    <title>Earthquake Globe</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <canvas id="scene"></canvas>
+    <div id="tooltip" hidden></div>
+    <div id="toast" role="status" aria-live="polite" hidden>
+      <span class="spinner" aria-hidden="true"></span>
+      <span class="msg"></span>
+      <button class="icon" aria-label="Dismiss">×</button>
+    </div>
+
+    <aside class="panel" id="controls">
+      <h1>Earthquake Globe</h1>
+      <div class="row2">
+        <label class="field">
+          <span>Magnitude</span>
+          <select id="mag">
+            <option value="significant">Significant</option>
+            <option value="4.5">M4.5+</option>
+            <option value="2.5">M2.5+</option>
+            <option value="1.0">M1.0+</option>
+            <option value="all">All</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Period</span>
+          <select id="period">
+            <option value="day">Past day</option>
+            <option value="week">Past 7 days</option>
+            <option value="month">Past 30 days</option>
+          </select>
+        </label>
+      </div>
+      <div id="status" class="muted">Starting…</div>
+
+      <details open>
+        <summary>View</summary>
+        <label class="check"><input type="checkbox" id="xray" /> X-ray: show quakes at their real depth</label>
+        <label class="slider" id="exag-row">
+          <span>Depth exaggeration</span>
+          <input type="range" id="exag" min="1" max="5" step="0.5" value="2" />
+          <output id="exag-out">×2</output>
+        </label>
+        <label class="check"><input type="checkbox" id="plates" checked /> Plate boundaries</label>
+        <label class="check"><input type="checkbox" id="daynight" checked /> Day / night</label>
+      </details>
+
+      <details open>
+        <summary>Legend</summary>
+        <div class="depth-legend">
+          <div id="depth-bar"></div>
+          <div class="ticks"><span>0</span><span>70</span><span>300</span><span>700 km</span></div>
+          <div class="ticks classes"><span>shallow</span><span>intermediate</span><span>deep</span></div>
+        </div>
+        <div class="size-legend" id="size-legend"></div>
+        <div class="legend">
+          <span><i class="line" style="--c: #ff7a3d"></i>Subduction zone</span>
+          <span><i class="line" style="--c: #8c7430"></i>Other boundary</span>
+        </div>
+      </details>
+
+      <details open>
+        <summary>Largest in period</summary>
+        <ol id="largest"></ol>
+      </details>
+
+      <div id="texture-note" class="note" hidden>
+        NASA textures not found. Run <code>npm run textures</code> and reload.
+      </div>
+      <p class="credits muted">
+        Data: <a href="https://earthquake.usgs.gov/earthquakes/feed/" target="_blank" rel="noopener">USGS</a> ·
+        Plates: PB2002 (Bird, 2003) · Imagery: NASA
+      </p>
+    </aside>
+
+    <aside class="panel" id="info" hidden>
+      <header>
+        <h2 id="q-title"></h2>
+        <button id="close-info" class="icon" aria-label="Deselect">×</button>
+      </header>
+      <div id="q-badges" class="badges"></div>
+      <dl id="q-fields"></dl>
+      <div class="actions">
+        <button id="q-jump">Replay this moment</button>
+        <a id="q-link" class="button" target="_blank" rel="noopener">USGS event page ↗</a>
+      </div>
+    </aside>
+
+    <footer class="panel" id="timebar">
+      <canvas id="timeline" aria-label="Timeline: drag to scrub through time"></canvas>
+      <div class="row">
+        <div id="clock">—</div>
+        <div class="seg" id="speeds">
+          <button data-speed="0" title="Pause (Space)">❚❚</button>
+          <button data-speed="1" class="on">1×</button>
+          <button data-speed="3600">1 h/s</button>
+          <button data-speed="21600">6 h/s</button>
+          <button data-speed="86400">1 d/s</button>
+          <button data-speed="259200">3 d/s</button>
+        </div>
+        <button id="replay">↺ Replay period</button>
+        <button id="live"><span class="dot"></span>Live</button>
+        <span id="shown" class="muted"></span>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
